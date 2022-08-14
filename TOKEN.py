@@ -1,0 +1,1 @@
+condig = '5599813139:AAFxr7MvsPQtoqSsw9szDA63R0RftUYSvK4'
