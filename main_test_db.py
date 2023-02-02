@@ -4,7 +4,7 @@ from random import *
 from list_stickers_id import *
 import TOKEN
 
-bot = telebot.TeleBot(TOKEN.condig)
+bot = telebot.TeleBot(TOKEN.config)
 
 # создание кнопок для начала работы
 markup_start = types.ReplyKeyboardMarkup(resize_keyboard=True)
