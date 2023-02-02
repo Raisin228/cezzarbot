@@ -3,6 +3,7 @@ from time import *
 from random import *
 from list_stickers_id import *
 import TOKEN
+import json
 
 bot = telebot.TeleBot(TOKEN.config)
 
@@ -24,12 +25,6 @@ markup_language = types.ReplyKeyboardMarkup(resize_keyboard=True, one_time_keybo
 buttn1 = types.KeyboardButton('🇷🇺 Русский (без буквы ё)')
 buttn2 = types.KeyboardButton('🇬🇧 Английский')
 markup_language.add(buttn1, buttn2)
-
-# continue
-markup_continue = types.ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
-bt1 = types.KeyboardButton('Да 😀')
-bt2 = types.KeyboardButton('Нет 😑')
-markup_continue.add(bt1, bt2)
 
 eng_lower = 'abcdefghijklmnopqrstuvwxyz'
 eng_upper = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
@@ -159,8 +154,11 @@ def decode(st, step_shift, lang):
         ans = ans.replace(q, '\n\n')
     return ans
 
+# при включении загружаем в переменную database базу данных из json файла
 global database
 database = {}
+with open('db.json') as file:
+    database = json.load(file)
 
 # код для реагирования на команду /start
 @bot.message_handler(commands=['start'])
@@ -185,12 +183,16 @@ def help(message):
                                       '5. Если язык вашего сообщения не будет соответствовать тому, который вы выбрали, бот оставит сообщение не зашифровав его! \n'
                                       '6. Если остались какие-то вопросы вы можете обратиться к автору проекта (@Bogdanatrosenko)😀', reply_markup=markup_start)
 
+# по запросу можно получить кол-во уникальных пользователей
 @bot.message_handler(commands=['usage'])
 def usage(message):
     if message.chat.id != CONST_DEV:
         bot.send_message(message.chat.id, 'Извините, но вы не можете получить статистику использования приложения, потому '
                                           'что не являетесь разработчиком❗❗❗')
     else:
+        # загружаем актуальную информацию из файла
+        with open('db.json') as file:
+            database = json.load(file)
         bot.send_message(CONST_DEV,
                          f'⚠⚠⚠Разработчик, готова статистика использования приложения:\n За всё время ботом '
                          f'пользовался {len(database)} уникальный пользователь.')
@@ -292,6 +294,11 @@ def String(message):
             sleep(2)
             msg = bot.send_message(message.chat.id, 'Нажмите команду ', reply_markup=markup_start)
             bot.register_next_step_handler(msg, main_programm)
+
+        # после того как мы ответили пользователю мы перезаписываем базу данных
+        with open('db.json', 'w') as file:
+            json.dump(database, file)
+
     else:
         msg = bot.send_message(message.chat.id, 'Я не могу работать с данными, которые НЕ являются строками!')
         bot.send_message(message.chat.id, 'Попробуйте снова ☺')
